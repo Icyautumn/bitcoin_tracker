@@ -35,55 +35,22 @@ const coinapi = 'https://rest.coinapi.io/v1/exchangerate/';
 const apikey = '7FE64C40-E8AD-4CA7-8094-8693685962A3';
 
 class CoinData {
-  String btc = 'BTC';
-  String eth = 'ETH';
-  String ltc = 'LTC';
+  Map<String, String> exchange_Rates = {};
+  List<String> Crypto_Curriencies = ['BTC', 'ETH', 'LTC'];
   Future getBTCData(String Selected_Currency) async {
-    String requestURL_BTC = '$coinapi$btc/$Selected_Currency?apikey=$apikey';
+    for (String crypto in Crypto_Curriencies) {
+      String requestURL = '$coinapi$crypto/$Selected_Currency?apikey=$apikey';
+      http.Response response = await http.get(Uri.parse(requestURL));
+      if (response.statusCode == 200) {
+        var decodeData = jsonDecode(response.body);
 
-    http.Response response_BTC = await http.get(Uri.parse(requestURL_BTC));
-
-    if (response_BTC.statusCode == 200) {
-      var decodeData = jsonDecode(response_BTC.body);
-
-      var last_price = decodeData['rate'];
-
-      return last_price;
-    } else {
-      print(response_BTC.statusCode);
-      throw 'Problem with the get request';
+        double last_Price = decodeData['rate'];
+        exchange_Rates[crypto] = last_Price.toStringAsFixed(0);
+      } else {
+        print(response.statusCode);
+        throw 'Problem with the get request';
+      }
     }
-  }
-  Future getETHData(String Selected_Currency) async {
-    String requestURL_ETH = '$coinapi$eth/$Selected_Currency?apikey=$apikey';
-
-    http.Response response_ETH = await http.get(Uri.parse(requestURL_ETH));
-
-    if (response_ETH.statusCode == 200) {
-      var decodeData = jsonDecode(response_ETH.body);
-
-      var last_price = decodeData['rate'];
-
-      return last_price;
-    } else {
-      print(response_ETH.statusCode);
-      throw 'Problem with the get request';
-    }
-  }
-  Future getLTCData(String Selected_Currency) async {
-    String requestURL_LTC = '$coinapi$ltc/$Selected_Currency?apikey=$apikey';
-
-    http.Response response_LTC = await http.get(Uri.parse(requestURL_LTC));
-
-    if (response_LTC.statusCode == 200) {
-      var decodeData = jsonDecode(response_LTC.body);
-
-      var last_price = decodeData['rate'];
-
-      return last_price;
-    } else {
-      print(response_LTC.statusCode);
-      throw 'Problem with the get request';
-    }
+    return exchange_Rates;
   }
 }
